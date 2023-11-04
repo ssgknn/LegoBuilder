@@ -83,7 +83,7 @@ private:
 	void CalculateSnapPoint();
 
 public:	
-	// Called every frame
+
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Block Function")
@@ -119,5 +119,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Interface Override")
 	virtual void Place(AActor* ActorToPlace, FTransform transform) override;
 
-
+	//getters
+	TArray<AActor*> GetChildActors();
 };

@@ -313,4 +313,9 @@ void ABlock::Place(AActor* ActorToAttach, FTransform transform)
 
 }
 
+TArray<AActor*> ABlock::GetChildActors()
+{
+	return ChildActors;
+}
+
 
