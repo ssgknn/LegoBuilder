@@ -9,7 +9,12 @@ void USnapPoint_Component::BeginPlay()
 
 	if (IBuildingInterface* BuildingInterface = Cast<IBuildingInterface>(this))
 	{
-		BuildingInterface->AddSnapPoint();
+		BuildingInterface->AddSnapPoint(this->GetRelativeLocation(), this->GetRelativeRotation(), Priority);
 	}
 
+}
+
+void USnapPoint_Component::DataSyncCompleted()
+{
+	this->DestroyComponent();
 }

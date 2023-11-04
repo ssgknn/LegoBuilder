@@ -17,4 +17,14 @@ class LEGOBUILDER_API USnapPoint_Component : public UStaticMeshComponent, public
 	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+private:
+
+	UPROPERTY()
+	int32 Priority;
+
+public:
+
+	UFUNCTION()
+	void DataSyncCompleted();
 };
