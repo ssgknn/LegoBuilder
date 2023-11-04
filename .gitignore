@@ -74,7 +74,6 @@ Plugins/*/Intermediate/*
 DerivedDataCache/*
 
 #Assets
-Content/PolygonApocalypse/*
-Content/PolygonDungeons/*
-Content/ProIconPack/*
-Content/CraftResourcesIcons/*
+Content/Materials/*
+Content/Textures/*
+Content/Levels/*
