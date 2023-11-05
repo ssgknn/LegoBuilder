@@ -38,7 +38,7 @@ protected:
 	float ReachDistance;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BlockVariable")
-	TArray<AActor*> ChildsToIgnore;
+	TArray<AActor*> ActorsToIgnore;
 
 	
 protected:

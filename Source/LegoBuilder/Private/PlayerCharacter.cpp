@@ -42,8 +42,8 @@ TArray<FVector> APlayerCharacter::PreTraceCheck()
 		ABlock* Block_cast = Cast<ABlock>(PhysicsHandleComponent->GetGrabbedComponent()->GetOwner());
 		if (Block_cast)
 		{
-			ChildsToIgnore = Block_cast->GetChildActors();
-			ChildsToIgnore.Add(PhysicsHandleComponent->GetGrabbedComponent()->GetOwner());
+			ActorsToIgnore = Block_cast->GetChildActors();
+			ActorsToIgnore.Add(PhysicsHandleComponent->GetGrabbedComponent()->GetOwner());
 		}
 		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 		if (PlayerController)
@@ -73,6 +73,42 @@ void APlayerCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	DeltaSeconds = DeltaTime;
+
+	TArray<FVector> PreTrace = PreTraceCheck();
+	FVector TraceStart = PreTrace[0];
+	FVector TraceEnd = PreTrace[1];
+
+	FHitResult TraceHit;
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActors(ActorsToIgnore);
+
+	if (GetWorld()->LineTraceSingleByChannel(TraceHit, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
+	{
+		//debug
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TraceHit.GetActor()->GetFName().ToString());
+		DrawDebugLine(GetWorld(), TraceStart, TraceHit.Location, FColor(255, 0, 0), false, 0.3f, 0, 1);
+
+		////Check if we hit an interactable object
+		//if (TraceHit.GetActor())
+		//{
+		//	if (UInteractionComponent* InteractionComponent = Cast<UInteractionComponent>(TraceHit.GetActor()->GetComponentByClass(UInteractionComponent::StaticClass())))
+		//	{
+		//		float Distance = (TraceStart - TraceHit.ImpactPoint).Size();
+
+		//		if (InteractionComponent != GetInteractable() && Distance <= InteractionComponent->InteractionDistance)
+		//		{
+		//			OnFoundNewInteractable(InteractionComponent);
+		//		}
+		//		else if (Distance > InteractionComponent->InteractionDistance && GetInteractable())
+		//		{
+		//			OnClouldNotFindInteractable();
+
+		//		}
+
+		//		return;
+		//	}
+		//}
+	}
 
 }
 
