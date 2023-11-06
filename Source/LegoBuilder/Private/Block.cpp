@@ -323,4 +323,9 @@ TArray<FVector3d> ABlock::GetSnapPoints()
 	return SnapPoints;
 }
 
+TArray<FRotator> ABlock::GetSnapDirections()
+{
+	return SnapDirections;
+}
+
 

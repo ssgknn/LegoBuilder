@@ -53,6 +53,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Settings")
 	float ReachDistance;
 
+	UPROPERTY(EditAnywhere, Category = "Settings")
+	float SnapDistance;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BlockVariable")
 	TArray<AActor*> ActorsToIgnore;
 
@@ -79,6 +82,8 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Helper functions")
 	void ClosestPointCalculate(TArray<FVector> Points, FVector TestLocation, FTransform HitActorTransform, FVector& ClosestPointResult, int& ClosesPointIdxResult, float& DistanceResult);
 
+	UFUNCTION(BlueprintCallable, Category = "Helper functions")
+	FRotator WorldRotationOffset();
 	
 
 public:	

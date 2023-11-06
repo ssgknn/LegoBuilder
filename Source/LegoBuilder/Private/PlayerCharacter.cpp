@@ -75,6 +75,10 @@ void APlayerCharacter::HandleBlock(FHitResult HitResult, uint8 bIsHit, FVector E
 {
 	if (PhysicsHandleComponent->GetGrabbedComponent())
 	{
+		FVector ClosestPoint_local;
+		int ClosestSnapPointIndex_local;
+		float ClosestDistance_local;
+
 		ABlock* HeldActor_local = Cast<ABlock>(PhysicsHandleComponent->GetGrabbedComponent()->GetOwner());
 		if (HeldActor_local)
 		{
@@ -85,24 +89,37 @@ void APlayerCharacter::HandleBlock(FHitResult HitResult, uint8 bIsHit, FVector E
 		{
 			FVector Location_local = HitResult.Location;
 			FVector Normal_local = HitResult.Normal;
-			AActor* HitActor_local = HitResult.GetActor();
-			FTransform HitActorTransform_local = HitActor_local->GetTransform();
+			ABlock* HitActor_local = dynamic_cast<ABlock*>(HitResult.GetActor());
+			if (HitActor_local)
+			{			
+				FTransform HitActorTransform_local = HitActor_local->GetTransform();
+				APlayerCharacter::ClosestPointCalculate(HitActor_local->GetSnapPoints(), Location_local, HitActorTransform_local, ClosestPoint_local, ClosestSnapPointIndex_local, ClosestDistance_local);
+				TArray<FRotator> SnapDirections_local = HitActor_local->GetSnapDirections();
 
-			if (!HitActor_local->Implements<UBuildingInterface>())
-			{
-				FVector NewLocation;
-				if (true) //STATEMENT later
+				if (!HitActor_local->Implements<UBuildingInterface>())
 				{
+					FVector NewLocation;
+					FRotator NewRotation;
+					if (!((ClosestDistance_local <= SnapDistance) && (HitActor_local->GetSnapPoints().Num() >= 0) && (bIsHit))) //STATEMENT later
+					{
+						NewLocation = HitActorTransform_local.TransformPosition(ClosestPoint_local) + (HeldActor_local->GetActorLocation() - HeldActor_local->GetActorTransform().TransformPosition(HeldActor_local->GetSnapPoints()[SnapPointIndex]));
+						NewRotation = FRotationMatrix::MakeFromZ(Normal_local).Rotator();
+					}
+					else
+					{
+						NewLocation = Location_local + (HeldActor_local->GetActorLocation() - HeldActor_local->GetActorTransform().TransformPosition(HeldActor_local->GetSnapPoints()[SnapPointIndex]));
+						HitActorTransform_local.SetRotation(SnapDirections_local[ClosestSnapPointIndex_local].Quaternion());
+						NewRotation = HitActorTransform_local.GetRotation().Rotator();
+					}
 
+					RotationalHelperComponent->SetWorldLocation(NewLocation);
+					RotationalHelperComponent->SetWorldRotation(NewRotation);
+					RotationalHelperComponent->AddLocalRotation(WorldRotationOffset());
 				}
 				else
 				{
-
+					SnapDirections_local = HitActor_local->GetSnapDirections();
 				}
-				HeldActor_local->GetSnapPoints()[SnapPointIndex].TransformPosition(HeldActor_local->GetActorTransform())
-					RotationalHelperComponent->SetWorldLocation(NewLocation);
-				HeldActor_local->GetActorLocation();
-
 			}
 		}
 
@@ -129,6 +146,17 @@ void APlayerCharacter::ClosestPointCalculate(TArray<FVector> Points, FVector Tes
 	DistanceResult = Distance_local;
 	ClosestPointResult = ClosestPoint_local;
 	ClosesPointIdxResult = ClosestPointIndex_local;
+}
+
+FRotator APlayerCharacter::WorldRotationOffset()
+{
+	ABlock* Block = Cast<ABlock>(PhysicsHandleComponent->GetGrabbedComponent()->GetOwner());
+	if (Block)
+	{
+		FRotator Rotator1(0.0, 180.0, 180.0);
+		return Block->GetSnapDirections()[SnapPointIndex].GetInverse() + Rotator1;
+	}
+	return FRotator();
 }
 
 // Called every frame

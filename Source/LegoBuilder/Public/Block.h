@@ -124,5 +124,7 @@ public:
 
 	TArray<FVector3d> GetSnapPoints();
 
+	TArray<FRotator> GetSnapDirections();
+
 
 };
