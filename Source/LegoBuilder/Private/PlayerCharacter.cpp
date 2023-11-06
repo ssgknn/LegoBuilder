@@ -24,6 +24,10 @@ APlayerCharacter::APlayerCharacter()
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(CameraBoom);
 
+	// Initialize the RotationalHelperComponent
+	RotationalHelperComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RotationalHelperComponent"));
+	RootComponent = RotationalHelperComponent;
+
 	//Set reach distance to 3000
 	ReachDistance = 3000.f;
 }
@@ -69,14 +73,14 @@ TArray<FVector> APlayerCharacter::PreTraceCheck()
 
 void APlayerCharacter::HandleBlock(FHitResult HitResult, uint8 bIsHit, FVector EndLocation)
 {
-	if(PhysicsHandleComponent->GetGrabbedComponent())
+	if (PhysicsHandleComponent->GetGrabbedComponent())
 	{
 		ABlock* HeldActor_local = Cast<ABlock>(PhysicsHandleComponent->GetGrabbedComponent()->GetOwner());
 		if (HeldActor_local)
 		{
 			SnapPointIndexLength = HeldActor_local->GetSnapPoints().Num();
 		}
-		
+
 		if (uint8 bHit_local = bIsHit)
 		{
 			FVector Location_local = HitResult.Location;
@@ -86,14 +90,45 @@ void APlayerCharacter::HandleBlock(FHitResult HitResult, uint8 bIsHit, FVector E
 
 			if (!HitActor_local->Implements<UBuildingInterface>())
 			{
-				HeldActor_local->GetActorLocation();
-				FVector tmp;
+				FVector NewLocation;
+				if (true) //STATEMENT later
+				{
+
+				}
+				else
+				{
+
+				}
 				HeldActor_local->GetSnapPoints()[SnapPointIndex].TransformPosition(HeldActor_local->GetActorTransform())
+					RotationalHelperComponent->SetWorldLocation(NewLocation);
+				HeldActor_local->GetActorLocation();
+
 			}
 		}
 
 	}
-	
+
+}
+
+void APlayerCharacter::ClosestPointCalculate(TArray<FVector> Points, FVector TestLocation, FTransform HitActorTransform, FVector& ClosestPointResult, int& ClosesPointIdxResult, float& DistanceResult)
+{
+	FVector TestLocation_local = HitActorTransform.InverseTransformPosition(TestLocation);
+	FVector ClosestPoint_local = Points[0];
+	float Distance_local = FVector::Distance(TestLocation_local, ClosestPoint_local);
+	int ClosestPointIndex_local = 0;
+
+	for (int32 Index = 0; Index < Points.Num(); Index++)
+	{
+		if (FVector::Distance(TestLocation_local, Points[Index]) < Distance_local)
+		{
+			ClosestPoint_local = Points[Index];
+			Distance_local = FVector::Distance(TestLocation_local, Points[Index]);
+			ClosestPointIndex_local = Index;
+		}
+	}
+	DistanceResult = Distance_local;
+	ClosestPointResult = ClosestPoint_local;
+	ClosesPointIdxResult = ClosestPointIndex_local;
 }
 
 // Called every frame

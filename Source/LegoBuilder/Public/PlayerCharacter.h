@@ -9,6 +9,22 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "PlayerCharacter.generated.h"
 
+USTRUCT(BlueprintType)
+struct FClosestPointStruct
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	float FloatValue;
+
+	UPROPERTY(EditAnywhere)
+	FVector VectorValue;
+
+	UPROPERTY(EditAnywhere)
+	int32 IntValue;
+};
+
+
 UCLASS()
 class LEGOBUILDER_API APlayerCharacter : public ACharacter
 {
@@ -40,6 +56,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BlockVariable")
 	TArray<AActor*> ActorsToIgnore;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BlockVariable")
+	USceneComponent* RotationalHelperComponent;
+
 	UPROPERTY(BlueprintReadOnly, Category = "BlockVariable")
 	int SnapPointIndex;
 
@@ -54,9 +73,11 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Helper functions")
 	TArray<FVector> PreTraceCheck();
 
-
 	UFUNCTION(BlueprintCallable, Category = "Helper functions")
 	void HandleBlock(FHitResult HitResult, uint8 bIsHit, FVector EndLocation);
+
+	UFUNCTION(BlueprintCallable, Category = "Helper functions")
+	void ClosestPointCalculate(TArray<FVector> Points, FVector TestLocation, FTransform HitActorTransform, FVector& ClosestPointResult, int& ClosesPointIdxResult, float& DistanceResult);
 
 	
 
