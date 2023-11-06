@@ -121,4 +121,8 @@ public:
 
 	//getters
 	TArray<AActor*> GetChildActors();
+
+	TArray<FVector3d> GetSnapPoints();
+
+
 };

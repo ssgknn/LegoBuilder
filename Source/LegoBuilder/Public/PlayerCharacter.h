@@ -40,6 +40,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BlockVariable")
 	TArray<AActor*> ActorsToIgnore;
 
+	UPROPERTY(BlueprintReadOnly, Category = "BlockVariable")
+	int SnapPointIndex;
+
+	UPROPERTY(BlueprintReadOnly, Category = "BlockVariable")
+	int SnapPointIndexLength;
+
 	
 protected:
 	// Called when the game starts or when spawned
@@ -47,6 +53,10 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Helper functions")
 	TArray<FVector> PreTraceCheck();
+
+
+	UFUNCTION(BlueprintCallable, Category = "Helper functions")
+	void HandleBlock(FHitResult HitResult, uint8 bIsHit, FVector EndLocation);
 
 	
 

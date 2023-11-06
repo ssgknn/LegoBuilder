@@ -67,6 +67,35 @@ TArray<FVector> APlayerCharacter::PreTraceCheck()
 	return TArray<FVector>();
 }
 
+void APlayerCharacter::HandleBlock(FHitResult HitResult, uint8 bIsHit, FVector EndLocation)
+{
+	if(PhysicsHandleComponent->GetGrabbedComponent())
+	{
+		ABlock* HeldActor_local = Cast<ABlock>(PhysicsHandleComponent->GetGrabbedComponent()->GetOwner());
+		if (HeldActor_local)
+		{
+			SnapPointIndexLength = HeldActor_local->GetSnapPoints().Num();
+		}
+		
+		if (uint8 bHit_local = bIsHit)
+		{
+			FVector Location_local = HitResult.Location;
+			FVector Normal_local = HitResult.Normal;
+			AActor* HitActor_local = HitResult.GetActor();
+			FTransform HitActorTransform_local = HitActor_local->GetTransform();
+
+			if (!HitActor_local->Implements<UBuildingInterface>())
+			{
+				HeldActor_local->GetActorLocation();
+				FVector tmp;
+				HeldActor_local->GetSnapPoints()[SnapPointIndex].TransformPosition(HeldActor_local->GetActorTransform())
+			}
+		}
+
+	}
+	
+}
+
 // Called every frame
 void APlayerCharacter::Tick(float DeltaTime)
 {
@@ -88,26 +117,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TraceHit.GetActor()->GetFName().ToString());
 		DrawDebugLine(GetWorld(), TraceStart, TraceHit.Location, FColor(255, 0, 0), false, 0.3f, 0, 1);
 
-		////Check if we hit an interactable object
-		//if (TraceHit.GetActor())
-		//{
-		//	if (UInteractionComponent* InteractionComponent = Cast<UInteractionComponent>(TraceHit.GetActor()->GetComponentByClass(UInteractionComponent::StaticClass())))
-		//	{
-		//		float Distance = (TraceStart - TraceHit.ImpactPoint).Size();
-
-		//		if (InteractionComponent != GetInteractable() && Distance <= InteractionComponent->InteractionDistance)
-		//		{
-		//			OnFoundNewInteractable(InteractionComponent);
-		//		}
-		//		else if (Distance > InteractionComponent->InteractionDistance && GetInteractable())
-		//		{
-		//			OnClouldNotFindInteractable();
-
-		//		}
-
-		//		return;
-		//	}
-		//}
 	}
 
 }
