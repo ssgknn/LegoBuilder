@@ -73,8 +73,10 @@ TArray<FVector> APlayerCharacter::PreTraceCheck()
 
 void APlayerCharacter::HandleBlock(FHitResult HitResult, uint8 bIsHit, FVector EndLocation)
 {
+	//check if GrabetComponent valid object
 	if (PhysicsHandleComponent->GetGrabbedComponent())
 	{
+		//init local variables used later by ref.
 		FVector ClosestPoint_local;
 		int ClosestSnapPointIndex_local;
 		float ClosestDistance_local;
@@ -85,42 +87,74 @@ void APlayerCharacter::HandleBlock(FHitResult HitResult, uint8 bIsHit, FVector E
 			SnapPointIndexLength = HeldActor_local->GetSnapPoints().Num();
 		}
 
-		if (uint8 bHit_local = bIsHit)
+		uint8 bHit_local = bIsHit;
+		if (bHit_local)
 		{
 			FVector Location_local = HitResult.Location;
 			FVector Normal_local = HitResult.Normal;
 			ABlock* HitActor_local = dynamic_cast<ABlock*>(HitResult.GetActor());
 			if (HitActor_local)
 			{			
+				
 				FTransform HitActorTransform_local = HitActor_local->GetTransform();
+				HeldActor_local = Cast<ABlock>(PhysicsHandleComponent->GetGrabbedComponent()->GetOwner());
 				APlayerCharacter::ClosestPointCalculate(HitActor_local->GetSnapPoints(), Location_local, HitActorTransform_local, ClosestPoint_local, ClosestSnapPointIndex_local, ClosestDistance_local);
 				TArray<FRotator> SnapDirections_local = HitActor_local->GetSnapDirections();
 
-				if (!HitActor_local->Implements<UBuildingInterface>())
+				//test with GetActor() if its not behave well --> HitActor_local dynamic casted class object instead 
+				if (HitResult.GetActor()->Implements<UBuildingInterface>())
 				{
-					FVector NewLocation;
-					FRotator NewRotation;
-					if (!((ClosestDistance_local <= SnapDistance) && (HitActor_local->GetSnapPoints().Num() >= 0) && (bIsHit))) //STATEMENT later
-					{
-						NewLocation = HitActorTransform_local.TransformPosition(ClosestPoint_local) + (HeldActor_local->GetActorLocation() - HeldActor_local->GetActorTransform().TransformPosition(HeldActor_local->GetSnapPoints()[SnapPointIndex]));
-						NewRotation = FRotationMatrix::MakeFromZ(Normal_local).Rotator();
-					}
-					else
-					{
-						NewLocation = Location_local + (HeldActor_local->GetActorLocation() - HeldActor_local->GetActorTransform().TransformPosition(HeldActor_local->GetSnapPoints()[SnapPointIndex]));
-						HitActorTransform_local.SetRotation(SnapDirections_local[ClosestSnapPointIndex_local].Quaternion());
-						NewRotation = HitActorTransform_local.GetRotation().Rotator();
-					}
+					//Call Interface 
+					HitActor_local->GetSnapPoints();
+					//Find closest point
+					this->ClosestPointCalculate(HitActor_local->GetSnapPoints(), Location_local, HitActorTransform_local, ClosestPoint_local, ClosestSnapPointIndex_local, ClosestDistance_local);
+					//Set local snap direction 
+					SnapDirections_local = HitActor_local->GetSnapDirections();
 
-					RotationalHelperComponent->SetWorldLocation(NewLocation);
-					RotationalHelperComponent->SetWorldRotation(NewRotation);
-					RotationalHelperComponent->AddLocalRotation(WorldRotationOffset());
+					//Get the owner of the held actor and cast to ABlock to call Interface implementation. 
+					ABlock* Block_cast = Cast<ABlock>(PhysicsHandleComponent->GetGrabbedComponent()->GetOwner());
+					Block_cast->OverlapCheck();
+				}
+				/*else
+				{
+		
+				}*/
+
+
+				FVector NewLocation;
+				FRotator NewRotation;
+				if (!((ClosestDistance_local <= SnapDistance) && (HitActor_local->GetSnapPoints().Num() >= 0) && (bIsHit))) //STATEMENT later
+				{
+					NewLocation = HitActorTransform_local.TransformPosition(ClosestPoint_local) + (HeldActor_local->GetActorLocation() - HeldActor_local->GetActorTransform().TransformPosition(HeldActor_local->GetSnapPoints()[SnapPointIndex]));
+					NewRotation = FRotationMatrix::MakeFromZ(Normal_local).Rotator();
 				}
 				else
 				{
-					SnapDirections_local = HitActor_local->GetSnapDirections();
+					NewLocation = Location_local + (HeldActor_local->GetActorLocation() - HeldActor_local->GetActorTransform().TransformPosition(HeldActor_local->GetSnapPoints()[SnapPointIndex]));
+					HitActorTransform_local.SetRotation(SnapDirections_local[ClosestSnapPointIndex_local].Quaternion());
+					NewRotation = HitActorTransform_local.GetRotation().Rotator();
 				}
+
+				RotationalHelperComponent->SetWorldLocation(NewLocation);
+				RotationalHelperComponent->SetWorldRotation(NewRotation);
+				RotationalHelperComponent->AddLocalRotation(WorldRotationOffset());
+
+				FMatrix RotationMatrix = FRotationMatrix(NewRotation);
+
+				//(FVector Axis, float Angle)
+				// calculations from KismetMathLibrary - rotator from axis and angle:
+				FVector SafeAxisY = RotationMatrix.GetScaledAxis(EAxis::Y).GetSafeNormal(); // Make sure axis is unit length
+				FVector SafeAxisZ = RotationMatrix.GetScaledAxis(EAxis::Z).GetSafeNormal();
+
+				FRotator WorldRotationToAdd = FRotator(FQuat(SafeAxisY, FMath::DegreesToRadians(RotationOffset.Pitch)) * FQuat(SafeAxisZ, FMath::DegreesToRadians(RotationOffset.Yaw)));
+				RotationalHelperComponent->AddWorldRotation(WorldRotationToAdd);
+
+				PhysicsHandleComponent->SetTargetLocationAndRotation(RotationalHelperComponent->GetComponentLocation(), RotationalHelperComponent->GetComponentRotation());
 			}
+		}
+		else
+		{
+			PhysicsHandleComponent->SetTargetLocationAndRotation(EndLocation, RotationOffset);
 		}
 
 	}

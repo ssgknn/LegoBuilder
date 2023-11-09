@@ -9,21 +9,21 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "PlayerCharacter.generated.h"
 
-USTRUCT(BlueprintType)
-struct FClosestPointStruct
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere)
-	float FloatValue;
-
-	UPROPERTY(EditAnywhere)
-	FVector VectorValue;
-
-	UPROPERTY(EditAnywhere)
-	int32 IntValue;
-};
-
+//USTRUCT(BlueprintType)
+//struct FClosestPointStruct
+//{
+//	GENERATED_BODY()
+//
+//	UPROPERTY(EditAnywhere)
+//	float FloatValue;
+//
+//	UPROPERTY(EditAnywhere)
+//	FVector VectorValue;
+//
+//	UPROPERTY(EditAnywhere)
+//	int32 IntValue;
+//};
+//
 
 UCLASS()
 class LEGOBUILDER_API APlayerCharacter : public ACharacter
@@ -67,6 +67,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "BlockVariable")
 	int SnapPointIndexLength;
+
+	UPROPERTY(BlueprintReadOnly, Category = "BlockVariable")
+	FRotator RotationOffset;
 
 	
 protected:
