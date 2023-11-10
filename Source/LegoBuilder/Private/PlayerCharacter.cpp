@@ -207,13 +207,13 @@ void APlayerCharacter::Tick(float DeltaTime)
 	FHitResult TraceHit;
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActors(ActorsToIgnore);
-
-	if (GetWorld()->LineTraceSingleByChannel(TraceHit, TraceStart, TraceEnd, ECC_Visibility, QueryParams))
+	bool bHit_local = GetWorld()->LineTraceSingleByChannel(TraceHit, TraceStart, TraceEnd, ECC_Visibility, QueryParams);
+	if (bHit_local)
 	{
 		//debug
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TraceHit.GetActor()->GetFName().ToString());
 		DrawDebugLine(GetWorld(), TraceStart, TraceHit.Location, FColor(255, 0, 0), false, 0.3f, 0, 1);
-
+		this->HandleBlock(TraceHit, bHit_local, TraceEnd);
 	}
 
 }
