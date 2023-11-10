@@ -36,6 +36,17 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	if (PlayerController)
+	{
+		FInputModeGameAndUI InputMode;
+			// --mouse lock later to +doNotLock" InMouseLockMode
+		PlayerController->SetInputMode(InputMode);
+		PlayerController->bShowMouseCursor = true;
+		PlayerController->bEnableClickEvents = true;
+		PlayerController->bEnableMouseOverEvents = true;
+	}
 	
 }
 
