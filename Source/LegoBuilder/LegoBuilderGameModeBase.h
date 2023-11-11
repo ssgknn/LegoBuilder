@@ -14,4 +14,5 @@ class LEGOBUILDER_API ALegoBuilderGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 	
+	ALegoBuilderGameModeBase();
 };
