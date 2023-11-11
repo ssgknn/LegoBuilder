@@ -43,10 +43,10 @@ void APlayerCharacter::BeginPlay()
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	if (PlayerController)
 	{
-		FInputModeGameAndUI InputMode;
+		//FInputModeGameAndUI InputMode;
 			// --mouse lock later to +doNotLock" InMouseLockMode
-		PlayerController->SetInputMode(InputMode);
-		PlayerController->bShowMouseCursor = true;
+		//PlayerController->SetInputMode(InputMode);
+		//PlayerController->bShowMouseCursor = true;
 		PlayerController->bEnableClickEvents = true;
 		PlayerController->bEnableMouseOverEvents = true;
 	}
@@ -76,6 +76,7 @@ TArray<FVector> APlayerCharacter::PreTraceCheck()
 			PlayerController->DeprojectMousePositionToWorld(WorldLocation, WorldDirection);
 
 			TArray<FVector> VectorsToReturn;
+			VectorsToReturn.Empty();
 			VectorsToReturn.Add(CameraComponent->GetComponentLocation());
 			VectorsToReturn.Add((WorldDirection * ReachDistance) + CameraComponent->GetComponentLocation());
 
@@ -261,9 +262,14 @@ void APlayerCharacter::Tick(float DeltaTime)
 	DeltaSeconds = DeltaTime;
 
 	TArray<FVector> PreTrace = PreTraceCheck();
-	FVector TraceStart = PreTrace[0];
-	FVector TraceEnd = PreTrace[1];
-
+	FVector TraceStart;
+	FVector TraceEnd;
+	if (PreTrace.Num() > 0)
+	{
+		TraceStart = PreTrace[0];
+		TraceEnd = PreTrace[1];
+	}
+	
 	FHitResult TraceHit;
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActors(ActorsToIgnore);
