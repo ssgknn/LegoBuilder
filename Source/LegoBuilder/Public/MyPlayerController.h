@@ -13,5 +13,8 @@ UCLASS()
 class LEGOBUILDER_API AMyPlayerController : public APlayerController
 {
 	GENERATED_BODY()
+
+protected:
+
 	
 };

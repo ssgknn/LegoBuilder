@@ -87,6 +87,35 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Helper functions")
 	FRotator WorldRotationOffset();
+
+
+#pragma region Input
+
+	/** MappingContext */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputMappingContext* DefaultMappingContext;
+
+	/** Move Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* MoveAction;
+
+	/** Look Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* LookAction;
+
+	/** Called for looking input */
+	void Look(const FInputActionValue& Value);
+
+	/** Called for movement input */
+	void Move(const FInputActionValue& Value);
+
+	UFUNCTION()
+	void RotateLeftRight(const FInputActionValue& Value);
+	
+	UFUNCTION()
+	void RotateUpDown(const FInputActionValue& Value);
+
+#pragma endregion
 	
 
 public:	
