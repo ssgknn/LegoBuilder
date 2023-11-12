@@ -5,15 +5,10 @@
 
 ALegoBuilderGameModeBase::ALegoBuilderGameModeBase()
 {
-    // Set default pawn class to your custom character class
-    DefaultPawnClass = APlayerCharacter::StaticClass(); // Set this to your custom character class
-
-    // Customize other properties as needed
-    bStartPlayersAsSpectators = false; // Start players as spectators by default
-    bUseSeamlessTravel = true; // Enable seamless travel between levels
-    //PlayerControllerClass = // Set custom player controller class
-    //HUDClass =  // Set custom HUD class
-    //GameStateClass =  // Set custom GameState class
-    //PlayerStateClass =  // Set custom PlayerState class
-    //DefaultPlayerName =  // Set default player name
+	// set default pawn class to our Blueprinted character
+	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/Blueprints/Character/BP_PlayerCharacter"));
+	if (PlayerPawnBPClass.Class != NULL)
+	{
+		DefaultPawnClass = PlayerPawnBPClass.Class;
+	}
 }

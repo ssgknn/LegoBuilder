@@ -40,6 +40,16 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//add Input mapping context
+	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	{
+		//Get local player subsystem
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(DefaultMappingContext, PlayerController->GetLocalPlayer()->GetLocalPlayerIndex());
+		}
+	}
+
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	if (PlayerController)
 	{
@@ -51,6 +61,36 @@ void APlayerCharacter::BeginPlay()
 		PlayerController->bEnableMouseOverEvents = true;
 	}
 	
+}
+
+// Called every frame
+void APlayerCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	DeltaSeconds = DeltaTime;
+
+	TArray<FVector> PreTrace = PreTraceCheck();
+	FVector TraceStart;
+	FVector TraceEnd;
+	if (PreTrace.Num() > 0)
+	{
+		TraceStart = PreTrace[0];
+		TraceEnd = PreTrace[1];
+	}
+
+	FHitResult TraceHit;
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActors(ActorsToIgnore);
+	bool bHit_local = GetWorld()->LineTraceSingleByChannel(TraceHit, TraceStart, TraceEnd, ECC_Visibility, QueryParams);
+	if (bHit_local)
+	{
+		//debug
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TraceHit.GetActor()->GetFName().ToString());
+		DrawDebugLine(GetWorld(), TraceStart, TraceHit.Location, FColor(255, 0, 0), false, 0.3f, 0, 1);
+		this->HandleBlock(TraceHit, bHit_local, TraceEnd);
+	}
+
 }
 
 TArray<FVector> APlayerCharacter::PreTraceCheck()
@@ -254,50 +294,10 @@ void APlayerCharacter::RotateUpDown(const FInputActionValue& Value)
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "RoteteUpDown");
 }
 
-// Called every frame
-void APlayerCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	DeltaSeconds = DeltaTime;
-
-	TArray<FVector> PreTrace = PreTraceCheck();
-	FVector TraceStart;
-	FVector TraceEnd;
-	if (PreTrace.Num() > 0)
-	{
-		TraceStart = PreTrace[0];
-		TraceEnd = PreTrace[1];
-	}
-	
-	FHitResult TraceHit;
-	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActors(ActorsToIgnore);
-	bool bHit_local = GetWorld()->LineTraceSingleByChannel(TraceHit, TraceStart, TraceEnd, ECC_Visibility, QueryParams);
-	if (bHit_local)
-	{
-		//debug
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TraceHit.GetActor()->GetFName().ToString());
-		DrawDebugLine(GetWorld(), TraceStart, TraceHit.Location, FColor(255, 0, 0), false, 0.3f, 0, 1);
-		this->HandleBlock(TraceHit, bHit_local, TraceEnd);
-	}
-
-}
-
 // Called to bind functionality to input
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	//add Input mapping context
-	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
-	{
-		//Get local player subsystem
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-		{
-			Subsystem->AddMappingContext(DefaultMappingContext, 0);
-		}
-	}
 
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
 
