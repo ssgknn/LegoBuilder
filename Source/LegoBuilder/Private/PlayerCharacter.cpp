@@ -6,6 +6,7 @@
 #include "InputMappingContext.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Block.h"
 
 // Sets default values
@@ -70,7 +71,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	DeltaSeconds = DeltaTime;
 
-	TArray<FVector> PreTrace = PreTraceCheck();
+	TArray<FVector> PreTrace = this->PreTraceCheck();
 	FVector TraceStart;
 	FVector TraceEnd;
 	if (PreTrace.Num() > 0)
@@ -248,6 +249,102 @@ FRotator APlayerCharacter::WorldRotationOffset()
 	return FRotator();
 }
 
+void APlayerCharacter::PlaceBlock(FHitResult HitResult, uint8 bDidHit)
+{
+	ABlock* HeldBlock_local = Cast<ABlock>(PhysicsHandleComponent->GetGrabbedComponent()->GetOwner());
+	if (HeldBlock_local)
+	{
+		if (bDidHit)
+		{
+			FVector Location_local = HitResult.Location;
+			FVector Normal_local = HitResult.Normal;
+			ABlock* HitActor_local = dynamic_cast<ABlock*>(HitResult.GetActor());
+
+			//test with GetActor() if its not behave well --> HitActor_local dynamic casted class object instead 
+			if (HitResult.GetActor()->Implements<UBuildingInterface>())
+			{
+				FVector ClosestPoint_local;
+				int ClosestSnapPointIndex_local;
+				float ClosestDistance_local;
+
+				TArray<FVector> SnapPoints_local = HitActor_local->GetSnapPoints();
+				TArray<FRotator> SnapDirections_local = HitActor_local->GetSnapDirections();
+				this->ClosestPointCalculate(SnapPoints_local, Location_local, HitActor_local->GetActorTransform(), ClosestPoint_local, ClosestSnapPointIndex_local, ClosestDistance_local);
+				TArray<FVector> SnapPoints_HeldBlock = HeldBlock_local->GetSnapPoints();
+
+				if (HeldBlock_local->GetConnSize() <= HitActor_local->GetConnSize())
+				{
+					if (HeldBlock_local->OverlapCheck())
+					{
+						FVector InverseVector = FVector(0, 0, 0);
+						if (!(ClosestDistance_local <= SnapDistance && SnapPoints_local.IsValidIndex(0)))
+						{
+							InverseVector = Location_local + (HeldBlock_local->GetActorLocation() - UKismetMathLibrary::TransformLocation(HeldBlock_local->GetTransform(), SnapPoints_HeldBlock[SnapPointIndex]));
+						}
+						else
+						{
+							InverseVector = UKismetMathLibrary::TransformLocation(HitActor_local->GetActorTransform(), ClosestPoint_local)  + (HeldBlock_local->GetActorLocation() - UKismetMathLibrary::TransformLocation(HeldBlock_local->GetTransform(), SnapPoints_HeldBlock[SnapPointIndex]));
+						}
+						FVector TransformLocation = UKismetMathLibrary::InverseTransformLocation(HitActor_local->GetActorTransform(), InverseVector);
+						FRotator TransformRotator = RotationalHelperComponent->GetComponentRotation();
+						FTransform PlaceTransform = UKismetMathLibrary::MakeTransform(TransformLocation, RotationalHelperComponent->GetComponentRotation());
+						HeldBlock_local->Place(HitActor_local, PlaceTransform);
+						this->DroppBlock();
+						
+						//reset snap index
+						SnapPointIndex = 0;
+					}
+					else
+					{
+						// Placement error
+						GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Cant place here :D");
+						return;
+					}
+				}
+				else
+				{
+					this->DroppBlock();
+				}
+			}
+			else
+			{
+				if (HeldBlock_local->OverlapCheck())
+				{
+					this->DroppBlock();
+				}
+				else
+				{
+					// Placement error
+					GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Cant place here :D");
+					return;
+				}
+			}
+		}
+		else
+		{
+			if (HeldBlock_local->OverlapCheck())
+			{
+				this->DroppBlock();
+			}
+			else
+			{
+				// Placement error
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "Cant place here :D");
+				return;
+			}
+		}
+	}
+}
+
+void APlayerCharacter::DroppBlock()
+{
+	ABlock* Block_cast = Cast<ABlock>(PhysicsHandleComponent->GetGrabbedComponent()->GetOwner());
+	if (Block_cast)
+	{
+		Block_cast->Drop(PhysicsHandleComponent);
+	}
+}
+
 void APlayerCharacter::Look(const FInputActionValue& Value)
 {
 	// input is a Vector2D
@@ -286,7 +383,33 @@ void APlayerCharacter::Move(const FInputActionValue& Value)
 
 void APlayerCharacter::PrimaryClick(const FInputActionValue& Value)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "PrimaryClick");
+	//debug
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "PrimaryClick");
+
+	if (PhysicsHandleComponent->GetGrabbedComponent())
+	{
+		TArray<FVector> PreTrace = this->PreTraceCheck();
+		FVector TraceStart;
+		FVector TraceEnd;
+		if (PreTrace.Num() > 0)
+		{
+			TraceStart = PreTrace[0];
+			TraceEnd = PreTrace[1];
+		}
+
+		FHitResult TraceHit;
+		FCollisionQueryParams QueryParams;
+		bool bHit_local = GetWorld()->LineTraceSingleByChannel(TraceHit, TraceStart, TraceEnd, ECC_Visibility, QueryParams);
+		if (bHit_local)
+		{
+			ABlock* Block_cast = Cast<ABlock>(PhysicsHandleComponent->GetGrabbedComponent()->GetOwner());
+			this->PlaceBlock(TraceHit, bHit_local);
+		}
+	}
+	else
+	{
+		//debug
+	}
 }
 
 void APlayerCharacter::SecondaryClick(const FInputActionValue& Value)

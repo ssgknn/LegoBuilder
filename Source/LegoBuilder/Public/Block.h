@@ -40,7 +40,7 @@ protected:
 	TArray<int> SnapPriority;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlacementData")
-	TArray<int> ConnSize;
+	int ConnSize;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BlockVariable")
 	TArray<AActor*> ChildActors;
@@ -125,6 +125,8 @@ public:
 	TArray<FVector3d> GetSnapPoints();
 
 	TArray<FRotator> GetSnapDirections();
+
+	int GetConnSize();
 
 
 };

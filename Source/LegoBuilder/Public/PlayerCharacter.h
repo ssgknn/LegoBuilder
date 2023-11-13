@@ -88,6 +88,11 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Helper functions")
 	FRotator WorldRotationOffset();
 
+	UFUNCTION()
+	void PlaceBlock(FHitResult HitResult, uint8 bDidHit);
+
+	UFUNCTION()
+	void DroppBlock();
 
 #pragma region Input
 

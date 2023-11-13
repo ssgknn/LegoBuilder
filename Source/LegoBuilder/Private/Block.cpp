@@ -328,4 +328,9 @@ TArray<FRotator> ABlock::GetSnapDirections()
 	return SnapDirections;
 }
 
+int ABlock::GetConnSize()
+{
+	return ConnSize;
+}
+
 
