@@ -284,6 +284,16 @@ void APlayerCharacter::Move(const FInputActionValue& Value)
 	}
 }
 
+void APlayerCharacter::PrimaryClick(const FInputActionValue& Value)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "PrimaryClick");
+}
+
+void APlayerCharacter::SecondaryClick(const FInputActionValue& Value)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "SecondaryClick");
+}
+
 void APlayerCharacter::RotateLeftRight(const FInputActionValue& Value)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "RoteteLeftRight");
@@ -307,6 +317,15 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		//Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
 
+		//Primary Click
+		EnhancedInputComponent->BindAction(PClickAction, ETriggerEvent::Triggered, this, &APlayerCharacter::PrimaryClick);
+
+		//Secondary Click
+		EnhancedInputComponent->BindAction(SClickAction, ETriggerEvent::Triggered, this, &APlayerCharacter::SecondaryClick);
+
+		//Rotating held object
+		EnhancedInputComponent->BindAction(RotateLRAction, ETriggerEvent::Triggered, this, &APlayerCharacter::RotateLeftRight);
+		EnhancedInputComponent->BindAction(RotateUDAction, ETriggerEvent::Triggered, this, &APlayerCharacter::RotateUpDown);
 	}
 }
 

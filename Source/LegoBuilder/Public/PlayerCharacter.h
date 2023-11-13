@@ -103,11 +103,33 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* LookAction;
 
-	/** Called for looking input */
+	/** Primary Click Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* PClickAction;
+
+	/** Secondary Click Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* SClickAction;
+
+	/** RotateLeftRight Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* RotateLRAction;
+
+	/** RotateUpDown Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* RotateUDAction;
+
+	UFUNCTION()
 	void Look(const FInputActionValue& Value);
 
-	/** Called for movement input */
+	UFUNCTION()
 	void Move(const FInputActionValue& Value);
+
+	UFUNCTION()
+	void PrimaryClick(const FInputActionValue& Value);
+
+	UFUNCTION()
+	void SecondaryClick(const FInputActionValue& Value);
 
 	UFUNCTION()
 	void RotateLeftRight(const FInputActionValue& Value);
