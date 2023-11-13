@@ -88,7 +88,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 	{
 		//debug
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TraceHit.GetActor()->GetFName().ToString());
-		DrawDebugLine(GetWorld(), TraceStart, TraceHit.Location, FColor(255, 0, 0), false, 0.3f, 0, 1);
+		DrawDebugLine(GetWorld(), TraceStart, TraceHit.Location, FColor(255, 0, 0), false, 2.3f, 0, 1);
 		this->HandleBlock(TraceHit, bHit_local, TraceEnd);
 	}
 
@@ -400,6 +400,7 @@ void APlayerCharacter::PrimaryClick(const FInputActionValue& Value)
 		FHitResult TraceHit;
 		FCollisionQueryParams QueryParams;
 		bool bHit_local = GetWorld()->LineTraceSingleByChannel(TraceHit, TraceStart, TraceEnd, ECC_Visibility, QueryParams);
+		DrawDebugLine(GetWorld(), TraceStart, TraceHit.Location, FColor(255, 0, 0), false, 2.3f, 0, 1);
 		if (bHit_local)
 		{
 			ABlock* Block_cast = Cast<ABlock>(PhysicsHandleComponent->GetGrabbedComponent()->GetOwner());
@@ -408,7 +409,29 @@ void APlayerCharacter::PrimaryClick(const FInputActionValue& Value)
 	}
 	else
 	{
-		//debug
+		// Get the camera location and rotation
+		FVector CameraLocation = CameraComponent->GetComponentLocation();
+		FRotator CameraRotation = CameraComponent->GetComponentRotation();
+
+		// Calculate the end point of the ray
+		FVector RayEnd = CameraLocation + (CameraRotation.Vector() * ReachDistance);
+
+		// Set up the parameters for the trace
+		FHitResult HitResult;
+		FCollisionQueryParams CollisionParams;
+		CollisionParams.AddIgnoredActor(this); // Ignore the actor that is casting the ray
+		DrawDebugLine(GetWorld(), CameraLocation, RayEnd, FColor(255, 0, 0), false, 2.3f, 0, 1);
+		if (GetWorld()->LineTraceSingleByChannel(HitResult, CameraLocation, RayEnd, ECC_Visibility, CollisionParams))
+		{
+			ABlock* Block_cast = Cast<ABlock>(HitResult.GetActor());
+			if (Block_cast)
+			{
+				if (Block_cast->Implements<UBuildingInterface>())
+				{
+					Block_cast->PickUp(PhysicsHandleComponent);
+				}
+			}
+		}
 	}
 }
 
