@@ -220,7 +220,11 @@ void APlayerCharacter::HandleBlock(FHitResult HitResult, uint8 bIsHit, FVector E
 void APlayerCharacter::ClosestPointCalculate(TArray<FVector> Points, FVector TestLocation, FTransform HitActorTransform, FVector& ClosestPointResult, int& ClosesPointIdxResult, float& DistanceResult)
 {
 	FVector TestLocation_local = HitActorTransform.InverseTransformPosition(TestLocation);
-	FVector ClosestPoint_local = Points[0];
+	FVector ClosestPoint_local;
+	if (Points.Num() > 0)
+	{
+		ClosestPoint_local = Points[0];
+	}
 	float Distance_local = FVector::Distance(TestLocation_local, ClosestPoint_local);
 	int ClosestPointIndex_local = 0;
 
