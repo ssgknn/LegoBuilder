@@ -40,7 +40,6 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
 	//add Input mapping context
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
@@ -50,6 +49,7 @@ void APlayerCharacter::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, PlayerController->GetLocalPlayer()->GetLocalPlayerIndex());
 		}
 	}
+
 
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	if (PlayerController)
@@ -70,15 +70,10 @@ void APlayerCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	DeltaSeconds = DeltaTime;
-
-	TArray<FVector> PreTrace = this->PreTraceCheck();
 	FVector TraceStart;
 	FVector TraceEnd;
-	if (PreTrace.Num() > 0)
-	{
-		TraceStart = PreTrace[0];
-		TraceEnd = PreTrace[1];
-	}
+
+	this->PreTraceCheck(TraceStart, TraceEnd);
 
 	FHitResult TraceHit;
 	FCollisionQueryParams QueryParams;
@@ -94,7 +89,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 }
 
-TArray<FVector> APlayerCharacter::PreTraceCheck()
+void APlayerCharacter::PreTraceCheck(FVector& TraceStart, FVector& TraceEnd)
 {
 	if (PhysicsHandleComponent->GetGrabbedComponent())
 	{
@@ -116,15 +111,10 @@ TArray<FVector> APlayerCharacter::PreTraceCheck()
 			// Convert the screen coordinates to a ray in the world
 			PlayerController->DeprojectMousePositionToWorld(WorldLocation, WorldDirection);
 
-			TArray<FVector> VectorsToReturn;
-			VectorsToReturn.Empty();
-			VectorsToReturn.Add(CameraComponent->GetComponentLocation());
-			VectorsToReturn.Add((WorldDirection * ReachDistance) + CameraComponent->GetComponentLocation());
-
-			return VectorsToReturn;
+			TraceStart = CameraComponent->GetComponentLocation();
+			TraceEnd = (WorldDirection * ReachDistance) + CameraComponent->GetComponentLocation();
 		}
 	}
-	return TArray<FVector>();
 }
 
 void APlayerCharacter::HandleBlock(FHitResult HitResult, uint8 bIsHit, FVector EndLocation)
@@ -357,7 +347,7 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 	if (Controller != nullptr)
 	{
 		// add yaw and pitch input to controller
-		AddControllerYawInput(LookAxisVector.X);
+		AddControllerYawInput(LookAxisVector.X*(-1));
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
 }
@@ -385,21 +375,16 @@ void APlayerCharacter::Move(const FInputActionValue& Value)
 	}
 }
 
-void APlayerCharacter::PrimaryClick(const FInputActionValue& Value)
+void APlayerCharacter::PrimaryClick()
 {
 	//debug
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, "PrimaryClick");
 
 	if (PhysicsHandleComponent->GetGrabbedComponent())
 	{
-		TArray<FVector> PreTrace = this->PreTraceCheck();
 		FVector TraceStart;
 		FVector TraceEnd;
-		if (PreTrace.Num() > 0)
-		{
-			TraceStart = PreTrace[0];
-			TraceEnd = PreTrace[1];
-		}
+		this->PreTraceCheck(TraceStart, TraceEnd);
 
 		FHitResult TraceHit;
 		FCollisionQueryParams QueryParams;

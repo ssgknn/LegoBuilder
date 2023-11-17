@@ -77,7 +77,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Helper functions")
-	TArray<FVector> PreTraceCheck();
+	void PreTraceCheck(FVector& TraceStart, FVector& TraceEnd);
 
 	UFUNCTION(BlueprintCallable, Category = "Helper functions")
 	void HandleBlock(FHitResult HitResult, uint8 bIsHit, FVector EndLocation);
@@ -131,7 +131,7 @@ protected:
 	void Move(const FInputActionValue& Value);
 
 	UFUNCTION()
-	void PrimaryClick(const FInputActionValue& Value);
+	void PrimaryClick();
 
 	UFUNCTION()
 	void SecondaryClick(const FInputActionValue& Value);

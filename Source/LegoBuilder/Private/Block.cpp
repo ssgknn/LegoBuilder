@@ -168,9 +168,10 @@ void ABlock::AddChild(AActor* ChildToAtt)
 	ChildActors.Add(ChildToAtt);
 	if (Parent)
 	{
-		if (IBuildingInterface* ParentInterface = Cast<IBuildingInterface>(Parent))
+		//if (IBuildingInterface* ParentInterface = Cast<IBuildingInterface>(Parent))
+		if (ABlock* ParentBlock_cast = Cast<ABlock>(Parent))
 		{
-			ParentInterface->AddChild(ChildToAtt);
+			ParentBlock_cast->AddChild(ChildToAtt);
 		}
 		//Parent->AddChild(ChildToAtt);
 	}
@@ -189,9 +190,10 @@ void ABlock::RemoveChild(AActor* ChildToRemove)
 	ChildActors.Remove(ChildToRemove);
 	if (Parent)
 	{
-		if (IBuildingInterface* ParentInterface = Cast<IBuildingInterface>(Parent))
+		//if (IBuildingInterface* ParentInterface = Cast<IBuildingInterface>(Parent))
+		if (ABlock* ParentBlock_cast = Cast<ABlock>(Parent))
 		{
-			ParentInterface->RemoveChild(ChildToRemove);
+			ParentBlock_cast->RemoveChild(ChildToRemove);
 		}
 		//Parent->RemoveChild(ChildToRemove);
 	}
@@ -210,7 +212,10 @@ void ABlock::PickUp(UPhysicsHandleComponent* PhysicHandle)
 	if (PhysicHandle)
 	{
 		this->Remove();
-		PhysicHandle->GrabComponentAtLocationWithRotation(BlockMeshComponent, NAME_None, this->GetActorTransform().GetLocation(), this->GetActorRotation());
+		FVector GrabLocation = this->GetActorTransform().GetLocation();
+		FRotator GrabRotation = this->GetActorRotation();
+		GrabRotation = FRotator(0, 0, 0);
+		PhysicHandle->GrabComponentAtLocationWithRotation(BlockMeshComponent, NAME_None, GrabLocation, GrabRotation);
 		bIsPickedUp = true;
 		this->ChangeScale(bIsPickedUp);
 
@@ -233,10 +238,13 @@ void ABlock::Remove()
 {
 	this->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	BlockMeshComponent->SetSimulatePhysics(true);
-	if (IBuildingInterface* ParentInterface = Cast<IBuildingInterface>(Parent))
+
+	//if (IBuildingInterface* ParentInterface = Cast<IBuildingInterface>(Parent))
+	ABlock* ParentBlock_cast = Cast<ABlock>(Parent);
+	if(ParentBlock_cast)
 	{
-		ParentInterface->RemoveChild(this);
-		ParentInterface->RemoveChildren(ChildActors);
+		ParentBlock_cast->RemoveChild(this);
+		ParentBlock_cast->RemoveChildren(ChildActors);
 		Parent = nullptr;
 	}
 
