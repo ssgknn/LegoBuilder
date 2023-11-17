@@ -40,14 +40,23 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	//add Input mapping context
+
+	FInputModeGameAndUI InputMode;
+	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+
+	
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
 		//Get local player subsystem
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
+			//add Input mapping context
 			Subsystem->AddMappingContext(DefaultMappingContext, PlayerController->GetLocalPlayer()->GetLocalPlayerIndex());
 		}
+
+		//set input mode to game and UI with mouse not lock:
+		PlayerController->SetInputMode(InputMode);
+		PlayerController->bShowMouseCursor = true;
 	}
 
 
@@ -409,7 +418,7 @@ void APlayerCharacter::PrimaryClick()
 		FHitResult HitResult;
 		FCollisionQueryParams CollisionParams;
 		CollisionParams.AddIgnoredActor(this); // Ignore the actor that is casting the ray
-		DrawDebugLine(GetWorld(), CameraLocation, RayEnd, FColor(255, 0, 0), false, 2.3f, 0, 1);
+		DrawDebugLine(GetWorld(), CameraLocation, RayEnd, FColor::Blue, false, 2.3f, 0, 1);
 		if (GetWorld()->LineTraceSingleByChannel(HitResult, CameraLocation, RayEnd, ECC_Visibility, CollisionParams))
 		{
 			ABlock* Block_cast = Cast<ABlock>(HitResult.GetActor());
