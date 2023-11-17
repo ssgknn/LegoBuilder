@@ -141,7 +141,8 @@ void APlayerCharacter::HandleBlock(FHitResult HitResult, uint8 bIsHit, FVector E
 		ABlock* HeldActor_local = Cast<ABlock>(PhysicsHandleComponent->GetGrabbedComponent()->GetOwner());
 		if (HeldActor_local)
 		{
-			SnapPointIndexLength = HeldActor_local->GetSnapPoints().Num();
+			TArray<FVector> SnapPoints = HeldActor_local->GetSnapPoints();
+			SnapPointIndexLength = SnapPoints.Num();
 		}
 
 		uint8 bHit_local = bIsHit;

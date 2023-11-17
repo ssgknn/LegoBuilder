@@ -23,6 +23,9 @@ void ABlock::BeginPlay()
 	Super::BeginPlay();
 
 	CachedMaterial = BlockMeshComponent->GetMaterial(0); //temp
+	
+	//debuh
+	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("Number of SnapPoints: %d"), SnapPoints.Num()));
 }
 
 void ABlock::CalculateSnapPoint()

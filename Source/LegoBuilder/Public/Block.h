@@ -30,10 +30,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 	UTimelineComponent* ScaleTimelineComp;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 	TArray<FVector> SnapPoints;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")
 	TArray<FRotator> SnapDirections;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlacementData")

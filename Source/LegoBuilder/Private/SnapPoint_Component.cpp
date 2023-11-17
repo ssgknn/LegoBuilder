@@ -12,7 +12,9 @@ void USnapPoint_Component::BeginPlay()
 		ABlock* Block_cast = Cast<ABlock>(this->GetOwner());
 		if (Block_cast)
 		{
-			Block_cast->AddSnapPoint(this->GetRelativeLocation(), this->GetRelativeRotation(), Priority);
+			FVector Location = this->GetComponentLocation(); //GetRelativeLocation();
+			FRotator Rotation = this->GetComponentRotation(); //GetRelativeRotation();
+			Block_cast->AddSnapPoint(Location, Rotation, Priority);
 			this->DataSyncCompleted();
 		}
 	}
