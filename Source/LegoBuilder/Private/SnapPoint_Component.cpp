@@ -13,6 +13,7 @@ void USnapPoint_Component::BeginPlay()
 		if (Block_cast)
 		{
 			Block_cast->AddSnapPoint(this->GetRelativeLocation(), this->GetRelativeRotation(), Priority);
+			this->DataSyncCompleted();
 		}
 	}
 }

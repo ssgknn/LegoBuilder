@@ -34,6 +34,8 @@ APlayerCharacter::APlayerCharacter()
 
 	//Set reach distance to 3000
 	ReachDistance = 3000.f;
+
+	SnapDistance = 200;
 }
 
 // Called when the game starts or when spawned
@@ -180,12 +182,15 @@ void APlayerCharacter::HandleBlock(FHitResult HitResult, uint8 bIsHit, FVector E
 				FRotator NewRotation;
 				if (!((ClosestDistance_local <= SnapDistance) && (HitActor_local->GetSnapPoints().Num() >= 0) && (bIsHit))) //STATEMENT later
 				{
-					NewLocation = HitActorTransform_local.TransformPosition(ClosestPoint_local) + (HeldActor_local->GetActorLocation() - HeldActor_local->GetActorTransform().TransformPosition(HeldActor_local->GetSnapPoints()[SnapPointIndex]));
+					TArray<FVector> HeldActorSnapPointVectors = HeldActor_local->GetSnapPoints();
+					NewLocation = HitActorTransform_local.TransformPosition(ClosestPoint_local) + (HeldActor_local->GetActorLocation() - HeldActor_local->GetActorTransform().TransformPosition(HeldActorSnapPointVectors[SnapPointIndex]));
 					NewRotation = FRotationMatrix::MakeFromZ(Normal_local).Rotator();
 				}
 				else
 				{
-					NewLocation = Location_local + (HeldActor_local->GetActorLocation() - HeldActor_local->GetActorTransform().TransformPosition(HeldActor_local->GetSnapPoints()[SnapPointIndex]));
+					TArray<FVector> HeldActorSnapPointVectors;
+					HeldActorSnapPointVectors = HeldActor_local->GetSnapPoints();
+					NewLocation = Location_local + (HeldActor_local->GetActorLocation() - HeldActor_local->GetActorTransform().TransformPosition(HeldActorSnapPointVectors[SnapPointIndex]));
 					HitActorTransform_local.SetRotation(SnapDirections_local[ClosestSnapPointIndex_local].Quaternion());
 					NewRotation = HitActorTransform_local.GetRotation().Rotator();
 				}

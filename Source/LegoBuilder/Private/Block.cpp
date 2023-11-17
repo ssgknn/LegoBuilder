@@ -326,7 +326,7 @@ TArray<AActor*> ABlock::GetChildActors()
 	return ChildActors;
 }
 
-TArray<FVector3d> ABlock::GetSnapPoints()
+TArray<FVector> ABlock::GetSnapPoints()
 {
 	return SnapPoints;
 }

@@ -31,10 +31,10 @@ protected:
 	UTimelineComponent* ScaleTimelineComp;
 
 	UPROPERTY()
-	TArray<FVector3d> SnapPoints;
+	TArray<FVector> SnapPoints;
 
 	UPROPERTY()
-	TArray<FRotator3d> SnapDirections;
+	TArray<FRotator> SnapDirections;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PlacementData")
 	TArray<int> SnapPriority;
@@ -70,10 +70,10 @@ private:
 	int32 tempMinIndex;
 
 	UPROPERTY()
-	TArray<FVector3d> tempSnapPoints;
+	TArray<FVector> tempSnapPoints;
 
 	UPROPERTY()
-	TArray<FRotator3d> tempSnapDirections;
+	TArray<FRotator> tempSnapDirections;
 
 	UPROPERTY()
 	TArray<int> tempSnapPriority;
